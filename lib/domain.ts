@@ -8,7 +8,7 @@ export const PRODUCTS = [
 ] as const;
 export type OrderPayload = { id: string; shop: string; area: string; createdAt: string; items: { productId: string; quantity: number }[]; demo: boolean };
 export type Receipt = { receipt: string; receivedAt: string; status: string; channel: string; total: number; duplicate: boolean };
-export type LocalOrder = OrderPayload & { state: 'queued' | 'received' | 'conflict'; savedAt: string; receipt?: Receipt; error?: string; interrupted?: boolean };
+export type LocalOrder = OrderPayload & { state: 'queued' | 'received' | 'conflict'; savedAt: string; receipt?: Receipt; error?: string; interrupted?: boolean; attempts?: number; nextRetryAt?: number };
 export type ServerOrder = OrderPayload & Receipt;
 export type Trace = { id: string; at: string; label: string; detail: string; kind: 'info' | 'success' | 'warning' };
 export const money = (n: number) => '৳' + n.toLocaleString('en-BD');

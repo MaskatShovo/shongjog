@@ -1,12 +1,15 @@
 {
   "name": "shongjog",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "engines": {
     "node": ">=22.13.0"
   },
   "scripts": {
-    "test": "node --test tests/domain.test.mjs",
+    "test": "node --test tests/domain.test.mjs tests/delivery.test.mjs",
+    "build:demo": "node scripts/build-demo.mjs",
+    "demo": "vite --config demo/vite.config.ts",
+    "preview:demo": "vite preview --config demo/vite.config.ts",
     "test:api": "node --test --test-concurrency=1 tests/api.test.mjs",
     "typecheck": "tsc --noEmit",
     "install:ci": "node scripts/install-ci.mjs",

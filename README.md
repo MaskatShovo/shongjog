@@ -1,6 +1,35 @@
-# Shongjog — Business, uninterrupted.
+<div align="center">
 
-A working, private prototype of a business-continuity layer for field sales in Bangladesh. Orders are saved on the device before delivery. A warehouse API issues durable receipts, rejects conflicting payloads, and reconciles repeated deliveries to one order.
+<img src="docs/media/cover.svg" width="100%" alt="Shongjog — Keep business moving, even when the network does not." />
+
+[![Quality checks](https://github.com/MaskatShovo/shongjog/actions/workflows/checks.yml/badge.svg)](https://github.com/MaskatShovo/shongjog/actions/workflows/checks.yml)
+[![Interactive demo](https://img.shields.io/badge/Try_the_interactive_demo-F5A15D?style=for-the-badge&logo=github&logoColor=13263F)](https://maskatshovo.github.io/shongjog/)
+
+**Capture the order. Trace the receipt. Prove the recovery.**
+
+[Product case study](docs/case-study.md) · [Architecture](docs/architecture.md) · [Delivery SDK](docs/sdk.md) · [Test evidence](docs/verification.md)
+
+</div>
+
+Shongjog is an offline-first business-continuity prototype for distributor field sales in Bangladesh. It saves an order on the device before delivery and separates **saved**, **received**, and **accepted**. Repeated deliveries reconcile to one receipt; changed contents under the same ID are rejected.
+
+## Try it in 60 seconds
+
+Open the **[public interactive demo](https://maskatshovo.github.io/shongjog/)**, choose **Resilience lab → Run resilience drill**, then inspect the receipt in **Warehouse**. No sign-in is needed. Warehouse and SMS transport are explicitly simulated in this browser-only showcase; orders remain on your device. The private full-stack app uses authenticated HTTP and a real D1 database.
+
+For the manual test, choose **Cut data**, create an order, and reload. Restore **Online**, then replay a delayed SMS. The order count stays the same while the duplicate counter increases.
+
+![Shongjog dashboard — public browser demo](docs/media/dashboard.png)
+
+## Run the public demo locally
+
+```sh
+npm ci
+npm run build:demo
+npm run preview:demo
+```
+
+Open **http://127.0.0.1:4174**. After its service worker prepares the shell, it can reopen offline. This is the quickest way to inspect the product without setting up the private backend.
 
 Created by **Maskat Ibne Wahid Shovo** as an independent product and engineering portfolio project. No Banglalink affiliation, endorsement, network access, or customer deployment is claimed.
 
@@ -15,7 +44,8 @@ Created by **Maskat Ibne Wahid Shovo** as an independent product and engineering
 - Unique `(tenant, order ID)` constraint and normalized SHA-256 content verification.
 - Concurrent retries return the same receipt; changed contents under an existing ID return HTTP 409.
 - Separate saved, received, and warehouse-accepted states.
-- Bounded request timeouts and periodic safe retries, with visible failure states.
+- Transport-independent delivery SDK with validated receipts, bounded timeouts, exponential backoff, and permanent-error handling.
+- Public GitHub Pages demo and automated quality checks, plus the private full-stack deployment.
 - SMS-channel simulator that invokes the real API; **no real SMS is sent**.
 - Repeatable resilience drill with an event timeline and downloadable JSON evidence.
 - Editable pilot economics with explicitly illustrative assumptions.
@@ -38,7 +68,6 @@ Requires Node.js 22.13+ (Node 24 tested), npm, and Git. Use `npm ci` on a fresh 
 
 ```sh
 npm ci
-npm run db:generate # only when changing the schema; don't regenerate applied migrations
 npm run build
 ```
 
@@ -70,6 +99,8 @@ npm run typecheck
 npm run test:api # built Worker must be running on port 8787
 npm run build
 ```
+
+GitHub Actions runs domain/SDK tests, TypeScript checks, both builds, and real local D1 API integration tests. The demo deployment workflow also gates publication on unit tests and typechecking.
 
 The API tests use isolated, randomly named QA tenants in the **local** database. They do not reset databases or delete data. See [verification.md](docs/verification.md) for actual results and [architecture.md](docs/architecture.md) for guarantees and limits.
 

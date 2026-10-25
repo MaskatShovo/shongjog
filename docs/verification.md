@@ -38,3 +38,10 @@ The interruption test found an overconfident connection label; it was corrected 
 ## Limits of this evidence
 
 The SMS path is simulated and no messages were sent. The browser test stopped the local application connection; it is not a radio/network field trial. Tests used synthetic demo records. No payment, billing, warehouse ERP, separate multi-user team roles, load benchmark, external security review, or paid pilot was performed.
+
+
+## v1.1 improvement pass
+
+Ten domain/SDK tests and six D1 API integration tests passed locally. The added SDK checks verify payload projection, permanent-versus-temporary errors, malformed success responses, HTML error handling, bounded exponential backoff, timeouts, and explicit acceptance requests. TypeScript, the full-stack build, and the static public demo build passed.
+
+The public browser demo passed its resilience drill using a separate IndexedDB warehouse simulator. It uses the same UI and SDK, with simulation labels visible at the top and inside the lab. Its receipts are browser-local evidence, not server or carrier evidence. GitHub Actions definitions reproduce the automated checks and publish the static demo.

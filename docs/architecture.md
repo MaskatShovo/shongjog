@@ -38,3 +38,10 @@ The local preview adapter binds to loopback and supplies a fixed QA identity. It
 ## Limits
 
 The inbox shows the latest 500 server orders. The catalogue is illustrative and prices are server-authoritative constants. No attachment uploads, durable inventory reservations, payment settlement, real SMS gateway, operator network APIs, commercial SLA, or field-validated savings are implemented. These are expansion boundaries rather than hidden mock features.
+
+
+## Public showcase and SDK (v1.1)
+
+The public GitHub Pages build and private hosted app share the React screens and `DeliveryClient`. The public transport is an atomic IndexedDB simulator, never an authentication bypass or access to private server data. Each build explicitly identifies its environment. The public demo's service worker is scoped to the project path.
+
+The SDK rejects incomplete success receipts and classifies errors. Temporary failures retain the original order and schedule bounded exponential retries; permanent rejection moves the order to attention-required state and does not block unrelated queued orders. Manual sync bypasses the retry deadline. See [SDK documentation](sdk.md).

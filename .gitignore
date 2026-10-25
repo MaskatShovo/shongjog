@@ -11,6 +11,7 @@
 
 # Generated builds and framework state
 /dist/
+/showcase-dist/
 /.next/
 /.vinext/
 /out/
