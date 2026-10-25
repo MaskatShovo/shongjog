@@ -4,14 +4,28 @@ const base = process.env.TEST_ORIGIN || 'http://127.0.0.1:8787';
 const tenant = 'qa-' + crypto.randomUUID();
 const order = { id: crypto.randomUUID(), shop: 'QA fixture · Rahman Store', area: 'Mirpur, Dhaka', createdAt: new Date().toISOString(), items: [{ productId: 'rice', quantity: 3 }, { productId: 'oil', quantity: 6 }], demo: true };
 async function api(method, body, user = tenant, extra = {}) {
-  return fetch(base + '/api/orders', { method, headers: { ...(user ? { 'oai-authenticated-user-id': user } : {}), 'Content-Type': 'application/json', ...extra }, ...(body ? { body: typeof body === 'string' ? body : JSON.stringify(body) } : {}) });
+  const response = await fetch(base + '/api/orders', { method, headers: { ...(user ? { 'oai-authenticated-user-id': user } : {}), 'Content-Type': 'application/json', ...extra }, ...(body ? { body: typeof body === 'string' ? body : JSON.stringify(body) } : {}) });
+  // Finish the response lifecycle even when a test asserts only the status.
+  await response.clone().arrayBuffer();
+  return response;
 }
 test('unauthenticated reads and writes are rejected', async () => {
   assert.equal((await api('GET', null, null)).status, 401);
   assert.equal((await api('POST', { order }, null)).status, 401);
 });
 test('concurrent data and simulated SMS deliveries create one order and one receipt', async () => {
-  const responses = await Promise.all(Array.from({ length: 12 }, (_, i) => api('POST', { order, channel: i % 2 ? 'sms_simulator' : 'data' })));
+  const responses = await Promise.all(Array.from({ length: 12 }, async (_, i) => {
+    const body = { order, channel: i % 2 ? 'sms_simulator' : 'data' };
+    let response = await api('POST', body);
+    // Wrangler can restart a local isolate between requests. Retry only that
+    // explicit infrastructure response, with the ORIGINAL immutable order ID.
+    if (response.status === 503 && (await response.clone().text()).startsWith('Your worker restarted mid-request.')) {
+      console.log('Local Wrangler restarted one request; replaying its original order ID.');
+      response = await api('POST', body);
+    }
+    return response;
+  }));
+  for (const response of responses) assert.ok(response.ok, `Unexpected concurrent response ${response.status}: ${response.ok ? '' : await response.clone().text()}`);
   assert.equal(responses.filter(r => r.status === 201).length, 1);
   assert.equal(responses.filter(r => r.status === 200).length, 11);
   const receipts = await Promise.all(responses.map(r => r.json()));

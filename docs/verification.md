@@ -20,6 +20,8 @@ Six API integration tests passed against a built Worker and real local D1 databa
 
 TypeScript checking and the production build passed. Local migration created the actual preview tables.
 
+A later rerun encountered Wrangler's explicit “worker restarted mid-request” 503 response on one request. The integration test replays that original ID once for this specific local infrastructure response; it does not retry application errors or suppress failing assertions. The client already retains queued orders for later retry on failed requests. This is a local runtime interruption, not an absent database binding.
+
 ## Browser checks performed through Chrome
 
 - Dashboard rendered without console errors.
