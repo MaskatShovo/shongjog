@@ -1,0 +1,38 @@
+# Verification evidence — 26 October 2026
+
+## Automated checks
+
+Four domain tests passed:
+
+- Authoritative catalogue pricing ignores injected client totals/prices.
+- Reordered product lines and trimmed shop names normalize to the same hash.
+- Changed contents under one ID produce a distinct content hash.
+- Unknown products, duplicates, null items, invalid quantities/dates/IDs, and blank names are rejected.
+
+Six API integration tests passed against a built Worker and real local D1 database:
+
+- Unauthenticated reads/writes return 401.
+- Twelve simultaneous deliveries across data and simulated SMS create one order, one receipt, and eleven deduplicated deliveries.
+- Changed contents return 409 and preserve the original order.
+- A second tenant cannot see or accept the first tenant's order.
+- Warehouse acceptance persists through replay.
+- Malformed JSON, invalid quantity, and cross-origin writes are rejected.
+
+TypeScript checking and the production build passed. Local migration created the actual preview tables.
+
+## Browser checks performed through Chrome
+
+- Dashboard rendered without console errors.
+- Paused app data, entered a demo order for three rice bags and six oil bottles, and saved it.
+- Reloaded; IndexedDB restored the order and paused mode, showing one pending order with value BDT 2,250.
+- Restored data; the warehouse received the order. Explicit acceptance succeeded.
+- Ran the full resilience drill: persisted record readback, simulated fallback HTTP delivery, data replay, identical receipt, one warehouse row. The drill reported passed.
+- Checked the 390×844 responsive layout; no horizontal document overflow was observed.
+- Stopped the loopback QA proxy completely, reloaded, and verified the service-worker application shell reopened with local records.
+- While the proxy remained unavailable, created a second offline test order, reloaded, and verified it remained pending with its original contents.
+
+The interruption test found an overconfident connection label; it was corrected to show warehouse unreachability on failed requests. Local receipt refresh was also extended to retain the last confirmed warehouse status for offline display.
+
+## Limits of this evidence
+
+The SMS path is simulated and no messages were sent. The browser test stopped the local application connection; it is not a radio/network field trial. Tests used synthetic demo records. No payment, billing, warehouse ERP, separate multi-user team roles, load benchmark, external security review, or paid pilot was performed.
